@@ -1,0 +1,14 @@
+# Archivos temporales de extracción
+temp/
+tmp/
+
+# Archivos comprimidos (para que no subas tus pruebas al repo)
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
