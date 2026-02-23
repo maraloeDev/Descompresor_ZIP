@@ -1,4 +1,3 @@
-# Descompresor_ZIP
 # 📦 DescompresorZIP
 > Herramienta de automatización en Bash para la gestión simplificada de archivos comprimidos.
 
