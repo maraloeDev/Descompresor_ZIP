@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Verificar dependencias críticas antes de empezar
+check_deps() {
+    local deps=("zenity" "tar" "unzip")
+    for dep in "${deps[@]}"; do
+        if ! command -v "$dep" &> /dev/null; then
+            echo "Error: La herramienta '$dep' no está instalada. Es necesaria para ejecutar este script."
+            exit 1
+        fi
+    done
+}
+
+# --- Tu Script Original Optimizado ---
+set -u
+set -o pipefail
+
+declare TMP_DIR=""
+declare SISTEMA_OP=""
+
+fun_detectar_sistema() {
+    case "$(uname -s)" in
+        Linux*)     SISTEMA_OP="Linux" ;;
+        Darwin*)    SISTEMA_OP="Mac" ;;
+        MINGW*|MSYS*|CYGWIN*) SISTEMA_OP="Windows" ;;
+        *)          SISTEMA_OP="Desconocido" ;;
+    esac
+}
+
+fun_cleanup() {
+    [[ -d "$TMP_DIR" ]] && rm -rf "$TMP_DIR"
+}
+trap fun_cleanup EXIT SIGINT SIGTERM
+
+fun_smart_move() {
+    local src_dir="$1"
+    local dst_dir="$2"
+    shopt -s dotglob
+    for item in "$src_dir"/*; do
+        [[ -e "$item" ]] || continue
+        local base_item=$(basename "$item")
+        if [[ -e "$dst_dir/$base_item" ]]; then
+            if zenity --question --title="Conflicto" --text="¿Sobreescribir $base_item?" --width=300; then
+                cp -rf "$item" "$dst_dir/"
+            fi
+        else
+            cp -rf "$item" "$dst_dir/"
+        fi
+    done
+    shopt -u dotglob
+}
+
+fun_extraer_recursivo() {
+    local folder="$1"
+    local found_any=false
+    for f in "$folder"/*; do
+        [[ -f "$f" ]] || continue
+        local cmd=""
+        case "${f,,}" in
+            *.zip) cmd="unzip -q -o" ;;
+            *.tar.gz|*.tgz) cmd="tar -xzf" ;;
+            *.tar.xz|*.xz) cmd="tar -xJf" ;;
+            *.tar) cmd="tar -xf" ;;
+            *.7z) cmd="7z x -y" ;;
+            *.rar) cmd="unrar x -o+ -inul" ;;
+        esac
+        if [[ -n "$cmd" ]]; then
+            (cd "$folder" && eval "$cmd \"$f\"" > /dev/null 2>&1)
+            rm -f "$f"
+            found_any=true
+        fi
+    done
+    [[ "$found_any" == true ]] && fun_extraer_recursivo "$folder"
+}
+
+main() {
+    check_deps
+    fun_detectar_sistema
+
+    local FILE_PATH=$(zenity --file-selection --title="Selecciona archivo")
+    [[ -z "$FILE_PATH" ]] && exit 0
+
+    local DEST_FINAL=$(dirname "$FILE_PATH")
+    TMP_DIR=$(mktemp -d)
+
+    (
+        echo "50"; echo "# Extrayendo niveles..."
+        cp "$FILE_PATH" "$TMP_DIR/"
+        fun_extraer_recursivo "$TMP_DIR"
+        echo "100"; echo "# Finalizando..."
+    ) | zenity --progress --auto-close --pulsate
+
+    fun_smart_move "$TMP_DIR" "$DEST_FINAL"
+    zenity --info --text="¡Completado en $DEST_FINAL!"
+}
+
+main "$@"
