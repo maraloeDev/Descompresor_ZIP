@@ -36,10 +36,10 @@ Si al extraer un archivo este ya existe en la carpeta final, UnpackMaster te pre
 
 ## Funciones
 
-1.  **`fun_detectar_sistema`**: Identifica el entorno de ejecución.
-2.  **`fun_dialogo_archivo`**: Bucle de selección que filtra extensiones y valida la entrada.
-3.  **`fun_extraer_recursivo`**: El corazón del script que procesa todos los niveles de compresión.
-4.  **`fun_smart_move`**: El gestor de archivos final que resuelve duplicados mediante interacción visual.
+1. Función,Responsabilidad
+2. fun_detectar_sistema,Identifica el Kernel para adaptar los comandos de UI.
+3. fun_cleanup,Garantiza que no queden residuos en /tmp.
+4. fun_smart_move,Lógica de decisión para archivos duplicados.
 
 ---
 
