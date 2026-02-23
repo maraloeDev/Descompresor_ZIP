@@ -1,4 +1,4 @@
-# 📦 UnpackMaster Pro
+# 📦 UnpackMaster Pro (v3.5 - Multi-OS Edition)
 > La herramienta definitiva de descompresión recursiva e inteligente. Ahora compatible con Windows, Mac y Linux. 🕺✨
 
 [![Bash Shell](https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
